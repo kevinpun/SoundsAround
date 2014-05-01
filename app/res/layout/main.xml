@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:weightSum="1"
+              android:background="@android:color/background_dark"
+              android:id="@+id/main">
+    <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.9"
+            android:id="@+id/imageView" android:layout_gravity="center_horizontal" android:src="@drawable/beach"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play"
+            android:id="@+id/btnPlay" android:layout_gravity="center_horizontal"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1"
+            android:weightSum="1">
+        <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text=""
+                android:id="@+id/btnPrev" android:layout_gravity="center_vertical"
+                android:background="@drawable/custom_prev"/>
+        <SeekBar
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:id="@+id/seekBar" android:layout_gravity="center_vertical"/>
+        <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text=""
+                android:id="@+id/btnNext" android:layout_gravity="center_vertical"
+                android:background="@drawable/custom_next"/>
+    </LinearLayout>
+</LinearLayout>
+
