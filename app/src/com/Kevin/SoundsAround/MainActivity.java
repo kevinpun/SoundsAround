@@ -1,17 +1,27 @@
 package com.Kevin.SoundsAround;
 
-import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends FragmentActivity implements View.OnClickListener {
     // Audio variables
     private AudioManager audioManager;
     private SeekBar volumeSeekBar;
@@ -36,6 +46,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button next;
     private Button play;
 
+    // Page Adapter
+    ViewPager pager;
+    ImageAdapter pageAdapter;
+
     /**
      * Called when the activity is first created.
      */
@@ -44,6 +58,38 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        // @TODO: Must set the images/sounds for the app to run
+        // Environment images
+        images = new int[] {};
+
+        // Environment sounds
+        environment = new int[] {};
+        currentEnvironment = 0;
+
+        // Sounds in the environment
+        sounds = new int[][] {
+                {},
+                {},
+                {}
+        };
+
+        List<Fragment> fragments = getFragments();
+        pageAdapter = new ImageAdapter(getSupportFragmentManager(), fragments);
+        pager = (ViewPager)findViewById(R.id.viewpager);
+        pager.setAdapter(pageAdapter);
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i2) {}
+
+            @Override
+            public void onPageSelected(int i) {
+                playCurrentEnvironmentSound(i);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {}
+        });
+
         setViews();
         initializeVolumeSeekBar();
         initializeSounds();
@@ -51,10 +97,43 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * Creates the list of fragments.
+     */
+    private List<Fragment> getFragments() {
+        List<Fragment> fragmentList = new ArrayList<Fragment>();
+        for (int i : images) {
+            fragmentList.add(ImageFragment.newInstance(i));
+        }
+        return fragmentList;
+    }
+
+    /**
+     *  ImageAdapter class
+     */
+    private class ImageAdapter extends FragmentPagerAdapter {
+        private List<Fragment> fragments;
+
+        public ImageAdapter(FragmentManager fragmentManager, List<Fragment> fragments) {
+            super(fragmentManager);
+            this.fragments = fragments;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return fragments.get(i);
+        }
+
+        @Override
+        public int getCount() {
+            return fragments.size();
+        }
+    }
+
+    /**
      *  Set the views
      */
     private void setViews() {
-        imageView = (ImageView) findViewById(R.id.imageView);
+//        imageView = (ImageView) findViewById(R.id.imageView);
         prev = (Button) findViewById(R.id.btnPrev);
         next = (Button) findViewById(R.id.btnNext);
         play = (Button) findViewById(R.id.btnPlay);
@@ -95,25 +174,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     /**
-     *  @TODO: Must set the sounds for the app to run
-     *  Initializes the sounds from the raw file
+     *  Initializes the sound
      */
     private void initializeSounds() {
         playSong = false;
-
-        // Environment images
-        images = new int[] {};
-
-        // Environment sounds
-        environment = new int[] {};
-        currentEnvironment = 0;
-
-        // Sounds in the environment
-        sounds = new int[][] {
-                {},
-                {},
-                {}
-        };
         currentSound = 0;
 
         environmentPlayer = MediaPlayer.create(this, environment[currentEnvironment]);
@@ -194,46 +258,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     /**
-     *  Called when the next or previous button is clicked
-     */
-    private void switchEnvironmentSound() {
-        if (soundPlayer != null)
-            soundPlayer.stop();
-
-        imageView.setImageResource(images[currentEnvironment]);
-
-        if (playSong) {
-            environmentPlayer.stop();
-            environmentPlayer.release();
-            environmentPlayer = MediaPlayer.create(this, environment[currentEnvironment]);
-            environmentPlayer.setLooping(true);
-            environmentPlayer.start();
-        }
-    }
-
-    /**
      *  Called when the next or previous button is pressed
      *	@param view the view that was clicked
      */
     @Override
     public void onClick(View view) {
         if (view == prev) {
-            if (currentEnvironment == 0) {
-                currentEnvironment = environment.length - 1;
-            }
-            else {
-                currentEnvironment -= 1;
-            }
-            switchEnvironmentSound();
+            changeEnvironmentSound(-1);
         }
         else if (view == next) {
-            if (currentEnvironment == environment.length - 1) {
-                currentEnvironment = 0;
-            }
-            else {
-                currentEnvironment += 1;
-            }
-            switchEnvironmentSound();
+            changeEnvironmentSound(1);
         }
         else if (view == play) {
             // Change play
@@ -251,5 +285,51 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
             playSong = !playSong;
         }
+    }
+
+    /**
+     *  Called when the next or previous button is clicked
+     */
+    private void switchEnvironmentSound() {
+        if (soundPlayer != null)
+            soundPlayer.stop();
+
+        if (playSong) {
+            environmentPlayer.stop();
+            environmentPlayer.release();
+            environmentPlayer = MediaPlayer.create(this, environment[currentEnvironment]);
+            environmentPlayer.setLooping(true);
+            environmentPlayer.start();
+        }
+    }
+
+    /**
+     * Change the environment sound
+     */
+    private void changeEnvironmentSound(int offset) {
+        if (offset == -1) {
+            if (currentEnvironment == 0) {
+                currentEnvironment = environment.length - 1;
+            } else {
+                currentEnvironment -= 1;
+            }
+        }
+        else if (offset == 1) {
+            if (currentEnvironment == environment.length - 1) {
+                currentEnvironment = 0;
+            } else {
+                currentEnvironment += 1;
+            }
+        }
+        pager.setCurrentItem(currentEnvironment, true);
+        switchEnvironmentSound();
+    }
+
+    /**
+     * Play the current environment sound
+     */
+    private void playCurrentEnvironmentSound(int i) {
+        currentEnvironment = i;
+        switchEnvironmentSound();
     }
 }

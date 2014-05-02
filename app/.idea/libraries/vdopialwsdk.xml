@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="vdopialwsdk">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/vdopialwsdk.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
